@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <title>Get Data</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <meta charset="utf-8">
+  <style>
+    /* Always set the map height explicitly to define the size of the div
+     * element that contains the map. */
+    #map {
+      height: 75%;
+      width: 75%;
+    }
+    /* Optional: Makes the sample page fill the window. */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+<div>
+
+  <button ng-click="myFunction()">Click Me!</button><br/><br/>
+  <table>
+    <tr ng-repeat="user in results.records">
+      <td>{{user.ID}}</td><td>{{user.Name}}</td><td>{{user.City}}</td>
+    </tr>
+  </table>
+
+</div>
+<div id="map"></div>
+<div id="barchart_material" style="width: 900px; height: 500px;"></div>
+<script>
+  var map;
+  var results;
+  function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: {lat: 12.397, lng: 10.644},
+      zoom: 3
+    });
+  }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWElBPiTg6-h-PkzYOJEsFamq5csj0ojM&callback=initMap"
+        async defer></script>
+<script>
+  var app = angular.module('myApp', []);
+  app.controller('myCtrl', function($scope, $http) {
+    $scope.myFunction = function() {
+      $http.get('/users')
+              .then(function mySuccess(response) {
+                $scope.results=response.data
+                console.log(response.data.records.length)
+                var len=response.data.records.length
+                var arr=[['Name', 'Random val']]
+                for (var i=0;i<len;i++){
+                  arr.push([response.data.records[i].Name, response.data.records[i].val])
+                  var marker = new google.maps.Marker({
+                    position: { lat: response.data.records[i].lat, lng: response.data.records[i].long },
+                    label: response.data.records[i].ID,
+                    map: map
+                  });
+                }
+
+
+                  var data = google.visualization.arrayToDataTable(arr);
+
+                  var options = {
+                      chart: {
+                          title: 'Company Performance',
+                          subtitle: 'Random values',
+                      },
+                      bars: 'horizontal' // Required for Material Bar Charts.
+                  };
+
+                  var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+
+                  chart.draw(data, options);
+               // console.log(response.data.records[0].Name)
+              },function myError() {
+                console.log("failed")
+              })
+
+    }
+  });
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+  google.charts.load('current', {'packages':['bar']});
+  //google.charts.setOnLoadCallback(drawChart);
+  function drawChart() {
+    var data = google.visualization.arrayToDataTable([
+      ['Name', 'Age']
+    ]);
+
+    var options = {
+      chart: {
+        title: 'Customers ages',
+        subtitle: '',
+      },
+      bars: 'horizontal' // Required for Material Bar Charts.
+    };
+
+    var chart = new google.charts.Bar(document.getElementById('barchart_material'));
+
+    chart.draw(data, options);
+  }
+</script>
+</body>
+</html>
