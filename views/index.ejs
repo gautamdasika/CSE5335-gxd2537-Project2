@@ -3,6 +3,29 @@
 <head>
 
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.js"></script>
+  <style>
+    tr {
+      transition: all linear 0.5s;
+      background-color: lightblue;
+      height: 30px;
+      width: 100%;
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+    .rand_style{
+      overflow: hidden;
+    }
+    .ng-hide {
+      height: 0;
+      width: 0;
+      background-color: transparent;
+      top:-200px;
+      left: 200px;
+    }
+
+  </style>
   <title>Get Data</title>
   <meta name="viewport" content="initial-scale=1.0">
   <meta charset="utf-8">
@@ -26,60 +49,25 @@
 
   <button ng-click="myFunction()">Click Me!</button><br/><br/>
   <table>
-    <tr ng-repeat="user in results.records">
-      <td>{{user.ID}}</td><td>{{user.Name}}</td><td>{{user.City}}</td>
+    <tr class="rand_style" ng-repeat="user in results | limitTo : 20">
+      <td>{{user.index}}</td><td>{{user.age}}</td><td>{{user.name}}</td>
     </tr>
   </table>
 
 </div>
-<div id="map"></div>
-<div id="barchart_material" style="width: 900px; height: 500px;"></div>
 <script>
-  var map;
-  var results;
-  function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: 12.397, lng: 10.644},
-      zoom: 3
-    });
-  }
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWElBPiTg6-h-PkzYOJEsFamq5csj0ojM&callback=initMap"
-        async defer></script>
-<script>
-  var app = angular.module('myApp', []);
-  app.controller('myCtrl', function($scope, $http) {
-    $scope.myFunction = function() {
+  var app = angular.module('myApp', ['ngAnimate']);
+  app.controller('myCtrl', function($scope, $http, $interval) {
+    $scope.results=[];
+    $scope.myFunction=function() {
+      $interval($scope.fire_ajax, 500, 100);
+    }
+    $scope.fire_ajax = function() {
       $http.get('/users')
               .then(function mySuccess(response) {
-                $scope.results=response.data
-                console.log(response.data.records.length)
-                var len=response.data.records.length
-                var arr=[['Name', 'Random val']]
-                for (var i=0;i<len;i++){
-                  arr.push([response.data.records[i].Name, response.data.records[i].val])
-                  var marker = new google.maps.Marker({
-                    position: { lat: response.data.records[i].lat, lng: response.data.records[i].long },
-                    label: response.data.records[i].ID,
-                    map: map
-                  });
-                }
-
-
-                  var data = google.visualization.arrayToDataTable(arr);
-
-                  var options = {
-                      chart: {
-                          title: 'Company Performance',
-                          subtitle: 'Random values',
-                      },
-                      bars: 'horizontal' // Required for Material Bar Charts.
-                  };
-
-                  var chart = new google.charts.Bar(document.getElementById('barchart_material'));
-
-                  chart.draw(data, options);
-               // console.log(response.data.records[0].Name)
+                $scope.results.unshift(response.data)
+                console.log(response.data)
+                console
               },function myError() {
                 console.log("failed")
               })
@@ -87,27 +75,6 @@
     }
   });
 </script>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-  google.charts.load('current', {'packages':['bar']});
-  //google.charts.setOnLoadCallback(drawChart);
-  function drawChart() {
-    var data = google.visualization.arrayToDataTable([
-      ['Name', 'Age']
-    ]);
 
-    var options = {
-      chart: {
-        title: 'Customers ages',
-        subtitle: '',
-      },
-      bars: 'horizontal' // Required for Material Bar Charts.
-    };
-
-    var chart = new google.charts.Bar(document.getElementById('barchart_material'));
-
-    chart.draw(data, options);
-  }
-</script>
 </body>
 </html>
