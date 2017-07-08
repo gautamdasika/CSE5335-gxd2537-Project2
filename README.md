@@ -1,7 +1,7 @@
 # CSE5335-gxd2537
 Project 1
 
-a. I chose Express on top of NodeJS, because I'm not very familiar with Web Technologies and used Javascript before. So, it was easy for me to adapt to NodeJS, since it uses the same syntax.
+a. I chose Express on top of NodeJS, because I'm familiar with Javascript. So, it was easy for me to adapt to NodeJS, since it uses the same syntax.
 
 b. I chose AngularJS, since it seemed to be the one with the most users and the way to use it was very intuitive. Since it had many users, I could get answers for any doubt that I had.
 
